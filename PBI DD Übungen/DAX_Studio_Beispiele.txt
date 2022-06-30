@@ -1,0 +1,48 @@
+EVALUATE
+CALCULATETABLE ( Sales, Sales[Country] = "Indonesia")
+-------------------------------------------
+evaluate Country
+-------------------------------------------
+EVALUATE
+VALUES ( Country[Country] )
+-------------------------------------------
+EVALUATE
+CALCULATETABLE ( VALUES ( Country[Country] ), LEFT ( Country[Country], 1 ) = "I" )
+ORDER BY Country[Country]
+-------------------------------------------
+DEFINE
+    MEASURE Sales[Budget] =
+        SUM ( Sales[Budget] )
+EVALUATE
+ADDCOLUMNS ( 
+	VALUES ( 'DateTableTemplate_c42d1cde-1e9b-464c-882e-66e87de92801'[Month]), "My Sales Amount", [Budget] )
+-------------------------------------------
+/*Berechnungen ausgeben mit einem oder mehreren Measures*/
+DEFINE
+    MEASURE Sales[Budget1] =
+        SUM ( Sales[Budget] )
+    MEASURE Sales[My Double Sales Amount] =
+        SUM ( Sales[Budget] ) * 2
+EVALUATE
+ADDCOLUMNS (
+    VALUES ( 'DateTableTemplate_c42d1cde-1e9b-464c-882e-66e87de92801'[Month]) ,
+    "My Sales Amount", [Budget1],
+    "My Double Sales Amount", [My Double Sales Amount])
+
+-------------------------------------------
+/*Einzelne Werte ausgeben*/
+
+EVALUATE
+{SUM ( Sales[Budget] )}
+-------------------------------------------
+/*Abfrage mit einem erstellten Measure*/
+DEFINE
+    MEASURE Sales[SumBudget] =
+        SUM ( Sales[Budget] )
+EVALUATE
+{ [SumBudget] }
+-------------------------------------------
+/*Abfrage mit einer Variablen*/
+EVALUATE
+FILTER ( 'Country', 'Country'[Country] = @Country )
+-------------------------------------------

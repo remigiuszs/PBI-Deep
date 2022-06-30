@@ -1,0 +1,32 @@
+Referenzen und Links aus dem Kurs
+
+Power BI Referenz
+
+https://docs.microsoft.com/de-DE/power-bi/
+
+BiB – Bevölkerungsstand – Bevölkerungsstand in Deutschland (1816-2019) (bund.de)
+
+https://www.bib.bund.de/DE/Fakten/Fakt/B01-Bevoelkerungsstand-ab-1816.html?nn=1215432
+
+Power Query M
+
+https://docs.microsoft.com/de-de/powerquery-m/
+
+Referenz DAX
+
+https://docs.microsoft.com/de-de/dax/
+
+Rollen in Arbeitsbereichen
+
+https://docs.microsoft.com/de-de/power-bi/collaborate-share/service-roles-new-workspaces
+
+Klassische Arbeitsbereiche
+
+https://docs.microsoft.com/de-de/power-bi/collaborate-share/service-create-workspaces
+
+PDF in Base64 konvertieren
+
+https://base64.guru/converter/encode/pdf
+
+
+

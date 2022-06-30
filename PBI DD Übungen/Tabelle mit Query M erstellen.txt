@@ -1,0 +1,20 @@
+--------------------------------------
+Tablle mit Query M erstellen
+--------------------------------------
+let  
+  Source = #table(   
+    {"OrderID", "CustomerID", "Item", "Price"},   
+      {   
+          {1, 1, "Fishing rod", 100.00},   
+          {2, 1, "1 lb. worms", 5.00}   
+      })
+in
+    Source
+--------------------------------------
+Funktion in Query M
+--------------------------------------
+
+let  
+    MyFunction = (parameter1, parameter2) => (parameter1 + parameter2) / 2  
+in  
+    MyFunction

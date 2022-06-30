@@ -1,0 +1,288 @@
+>> Date table: Year column
+=================================================
+Year =
+"CY" & YEAR ( [Date] )
+
+
+>> Date table: Quarter column
+==================================================
+Quarter =
+[Year] & " Q"
+    & IF (
+        MONTH ( [Date] ) <= 3;
+        1;
+        IF (
+            MONTH ( [Date] ) <= 6;
+            2;
+            IF (
+                MONTH ( [Date] ) <= 9;
+                3;
+                4
+            )
+        )
+    )
+
+
+>> Date table: Month column
+==================================================
+Month =
+FORMAT ( [Date].[Date]; "YYYY MMM" )
+
+
+>> Date table: Day column
+==================================================
+Day =
+FORMAT( [Date].[Date]; "YYYY MMM, DD")
+
+
+>> Date table: MonthKey column
+==================================================
+MonthKey =
+ ( YEAR ( [Date].[Date] ) * 100 )
+    + MONTH ( [Date].[Date] )
+
+
+>> Reseller Sales table: Sales measure
+==================================================
+Sales =
+SUM( [Sales Amount] )
+
+
+>> Reseller Sales table: Cost measure
+==================================================
+Cost =
+SUM( [TotalProductCost] )
+
+
+>> Reseller Sales table: Avg Price measure
+==================================================
+Avg Price =
+AVERAGE( [UnitPrice] )
+
+
+>> Reseller Sales table: Orders measure
+==================================================
+Orders =
+DISTINCTCOUNT( [SalesOrderNumber] )
+
+
+>> Reseller Sales table: Order Lines measure
+==================================================
+Order Lines =
+COUNTROWS( 'ResellerSales' )
+
+
+>> Reseller Sales table: Profit measure
+==================================================
+Profit =
+[Sales] - [Cost]
+
+
+>> Reseller Sales table: Profit Margin measure
+==================================================
+Profit Margin =
+DIVIDE( [Profit], [Sales] )
+
+
+>> Salespeople role: Salesperson.SalesTerritoryKey column
+==================================================
+[SalesTerritoryKey] =
+LOOKUPVALUE (
+    Salesperson[SalesTerritoryKey],
+    [EmailAddress], USERNAME()
+)
+
+
+>> Salespeople role: Test username
+==================================================
+m.blythe@adventureworks.com
+
+
+
+>> Reseller Sales table: Sales All Region measure
+==================================================
+Sales All Region =
+CALCULATE ( [Sales], REMOVEFILTERS ( Region ) )
+
+
+>> Reseller Sales table: Sales % All Region measure
+==================================================
+Sales % All Region =
+DIVIDE (
+    [Sales];
+    CALCULATE (
+        [Sales];
+        REMOVEFILTERS ( Reseller[Region] )
+    )
+)
+
+
+>> Reseller Sales table: Sales % Country measure
+==================================================
+Sales % Country =
+DIVIDE (
+    [Sales];
+    CALCULATE (
+        [Sales];
+        REMOVEFILTERS ( Reseller[Region] )
+    )
+)
+
+
+>> Reseller Sales table: Sales % Country measure (2)
+==================================================
+Sales % Country =
+IF (
+    ISINSCOPE ( Reseller[Region] );
+    DIVIDE (
+        [Sales];
+        CALCULATE (
+            [Sales];
+            REMOVEFILTERS ( Reseller[Region] )
+        )
+    )
+)
+
+
+>> Reseller Sales table: Sales % Group
+==================================================
+Sales % Group =
+DIVIDE (
+    [Sales];
+    CALCULATE (
+        [Sales];
+        REMOVEFILTERS (
+            Reseller[Region];
+            Reseller[Country]
+        )
+    )
+)
+
+
+>> Reseller Sales table: Sales % Group (2)
+==================================================
+Sales % Group =
+IF (
+    ISINSCOPE ( Reseller[Region] )
+        || ISINSCOPE ( Reseller[Country] );
+    DIVIDE (
+        [Sales];
+        CALCULATE (
+            [Sales];
+            REMOVEFILTERS (
+                Reseller[Region];
+                Reseller[Country]
+            )
+        )
+    )
+)
+
+
+>> Reseller Sales table: Sales Top 5 Reseller Orders
+==================================================
+Sales Top 5 Reseller Orders =
+SUMX (
+    TOPN (
+        5;
+        SUMMARIZE (
+            'ResellerSales';
+            [ResellerKey];
+            [SalesOrderNumber];
+            "Sales"; [Sales]
+        );
+        [Sales]; DESC
+    );
+    [Sales]
+)
+
+
+>> Reseller Sales table: Sales Top 5 Reseller Orders % All Orders
+==================================================
+Sales Top 5 Reseller Orders % All Orders =
+IF (
+    ISINSCOPE ( Reseller[ResellerName] );
+    DIVIDE (
+        [Sales Top 5 Reseller Orders];
+        [Sales]
+    )
+)
+
+
+>> Reseller Sales table: Sales YTD
+==================================================
+Sales YTD =
+TOTALYTD( [Sales], 'Date'[Date] )
+
+
+>> Reseller Sales table: Sales YoY Growth measure
+==================================================
+Sales YoY Growth =
+VAR SalesPriorYear =
+    CALCULATE (
+        [Sales];
+        PARALLELPERIOD (
+            'Date'[Date];
+            -12;
+            MONTH
+        )
+    )
+RETURN
+    SalesPriorYear
+
+
+>> Reseller Sales table: Sales YoY Growth measure (2)
+==================================================
+Sales YoY Growth =
+VAR SalesPriorYear =
+    CALCULATE (
+        [Sales];
+        PARALLELPERIOD (
+            'Date'[Date];
+            -12;
+            MONTH
+        )
+    )
+RETURN
+    DIVIDE (
+        ( [Sales] - SalesPriorYear );
+        SalesPriorYear
+    )
+
+
+>> Reseller Sales table: Sales Origin Currency measure
+==================================================
+Sales Origin Currency = 
+SUMX(
+    FactCurrencyRate;
+    CALCULATE(
+        DIVIDE(
+            [Sales];
+            SUM(FactCurrencyRate[EndOfDayRate])
+        )
+    )
+)
+
+
+>> Reseller Sales table: Sales Origin Currency Single measure
+==================================================
+Sales Origin Currency Single = 
+IF (
+    HASONEVALUE ( FactCurrencyRate[CurrencyKey] );
+    [Sales Origin Currency];
+    CALCULATE (
+        [Sales Origin Currency];
+        'Currency'[CurrencyAlternateKey] = "USD"
+    )
+)
+
+
+>> Reseller Sales table: Sales Origin Currency Formatted Single measure
+==================================================
+Sales Origin Currency Formatted Single =
+IF (
+    HASONEVALUE ( FactCurrencyRate[CurrencyKey] );
+    FORMAT (
+        [Sales Origin Currency];
+        VALUES ( $#,0.00 )
+    )
+)
